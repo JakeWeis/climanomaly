@@ -40,14 +40,37 @@ function [hlin,href,htop,hbot] = climanomaly(x,y,ref,varargin)
 % CLIMANOMALY(...,'refline','LineSpec')
 % Specifies line types, plot symbols and colors of the reference line.
 % LineSpec is a string of characters, e.g. 'b--*'. Refer to the 'plot'
-% documentation for more options. By default, the main line will be plotted
-% as a solid black line ('k-') and the reference line as a dotted black
-% line ('k:').
+% documentation for more options. Use 'none' to plot the anomalies without
+% 
+% By default, the main line will be plotted as a solid black line ('k-')
+% and the reference line as a dotted black line ('k:').
 % 
 % [hlin,href,htop,hbot] = CLIMANOMALY(...) returns the graphics handles of
 % the main line, top, and bottom plots, respectively.
 %
 %
+%% Examples
+% 
+% Example 1: Simple plot
+% x = 1:.1:20;
+% y = sin(x);
+% ref = sin(x)/2;
+% figure
+% CLIMANOMALY(x,y,ref);
+%
+% Example 2: Change line and patch appearance
+% x = 1:.1:20;
+% y = sin(x);
+% ref = sin(x)/2;
+% figure
+% [hlin,href,htop,hbot] = CLIMANOMALY(x,y,ref,'top','k','bottom',[.9 .9 .9],...
+%     'mainline','b-','refline','r--');
+% hlin.LineWidth = 2;
+% href.LineWidth = 2;
+% alpha(htop,0.7)
+% alpha(hbot,0.7)
+%
+% 
 %% Author Info
 %
 % Jake Weis, University of Tasmania, Institute for Marine and Antarctic
@@ -105,7 +128,7 @@ if nargin>3
     
     % Reference line:
     iref = find(strncmpi(varargin,'refline',3),1);
-    if ~isempty(imai)
+    if ~isempty(iref)
         refspec = varargin{iref+1};
         varargin(iref:iref+1) = [];
     end
@@ -172,20 +195,22 @@ yt(yt<reft) = reft(yt<reft);
 
 % Get initial hold state:
 hld = ishold;
-hold on
 
 % Plot the top half:
 htop = fill([xt;flipud(xt)],[yt;flipud(reft)],topcolor,'LineStyle','none');
 
+hold on
 % Plot the bottom half:
 hbot = fill([xb;flipud(xb)],[yb;flipud(refb)],bottomcolor,'LineStyle','none');
 
-if ~strcmp(mainspec,'off')
+if ~strcmp(mainspec,'none')
     % Plot the main line (the "archive" values are just the unmanipulated values the user entered)
     hlin = plot(x_archive,y_archive,mainspec);
+else
+    hlin = cell(1,1);
 end
 
-if ~strcmp(refspec,'off')
+if ~strcmp(refspec,'none')
     % Plot the main line (the "archive" values are just the unmanipulated values the user entered)
     href(1) = plot(x_archive,reft_archive,refspec);
     
